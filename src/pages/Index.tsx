@@ -1,37 +1,20 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, Users, Award, CheckCircle } from "lucide-react";
+import { ArrowRight, Star, Users, Award, CheckCircle, CalendarClock, Phone } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import heroBg from "@/assets/hero-bg.jpg";
 import serviceDecorations from "@/assets/service-decorations.jpg";
 import serviceMascots from "@/assets/service-mascots.jpg";
 import serviceActivities from "@/assets/service-activities.jpg";
 import servicePhoto from "@/assets/service-photo.jpg";
+import Footer from "@/components/Footer";
 
 const services = [
-  {
-    title: "Decorations",
-    description: "Elegant setups for weddings, birthdays, engagements, anniversaries, and grand openings.",
-    image: serviceDecorations,
-    link: "/decorations",
-  },
-  {
-    title: "Mascot Characters",
-    description: "Over 50 unique mascot characters to bring joy and excitement to every celebration.",
-    image: serviceMascots,
-    link: "/mascots",
-  },
-  {
-    title: "Activities & Entertainment",
-    description: "Face painting, bounce houses, ball houses, and music — exclusive attractions in Kosovo.",
-    image: serviceActivities,
-    link: "/activities",
-  },
-  {
-    title: "Photo Experiences",
-    description: "360° Photo Booth and Photo Box stations to capture every unforgettable moment.",
-    image: servicePhoto,
-    link: "/photo-services",
-  },
+  { title: "Decorations", description: "Elegant setups for weddings, birthdays, engagements, anniversaries, and grand openings.", image: serviceDecorations, link: "/decorations" },
+  { title: "Mascot Characters", description: "Over 50 unique mascot characters to bring joy and excitement to every celebration.", image: serviceMascots, link: "/mascots" },
+  { title: "Activities & Entertainment", description: "Face painting, bounce houses, ball houses, and music — exclusive attractions in Kosovo.", image: serviceActivities, link: "/activities" },
+  { title: "Photo Experiences", description: "360° Photo Booth and Photo Box stations to capture every unforgettable moment.", image: servicePhoto, link: "/photo-services" },
 ];
 
 const stats = [
@@ -41,12 +24,26 @@ const stats = [
 ];
 
 const Index = () => {
+  const { data: reviews } = useQuery({
+    queryKey: ["featured-reviews"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("is_visible", true)
+        .gte("rating", 4)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      return data || [];
+    },
+  });
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBg} alt="" className="w-full h-full object-cover" />
+          <img src={heroBg} alt="Premium event background" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/70 via-foreground/50 to-background" />
         </div>
         <div className="relative container mx-auto px-4 pt-24 pb-32 text-center">
@@ -91,27 +88,16 @@ const Index = () => {
       <section className="container mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-3">What We Offer</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">
-            Our Services
-          </h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">Our Services</h2>
           <p className="mt-3 text-muted-foreground max-w-lg mx-auto">
             Select a category to explore our full range of professional event services.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {services.map((service) => (
-            <Link
-              key={service.title}
-              to={service.link}
-              className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300"
-            >
+            <Link key={service.title} to={service.link} className="group relative overflow-hidden rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300">
               <div className="aspect-[16/10] overflow-hidden">
-                <img
-                  src={service.image}
-                  alt={service.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
+                <img src={service.image} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -131,9 +117,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-3">Why Choose Us</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">
-              The MD Creative Difference
-            </h2>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">The MD Creative Difference</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
@@ -151,6 +135,47 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Reviews */}
+      {reviews && reviews.length > 0 && (
+        <section className="container mx-auto px-4 py-24">
+          <div className="text-center mb-12">
+            <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-3">Testimonials</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground">What Our Clients Say</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {reviews.map((review) => (
+              <div key={review.id} className="bg-card rounded-lg p-6 shadow-card border border-border">
+                <div className="flex gap-0.5 mb-3">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className={`w-4 h-4 ${s <= review.rating ? "text-accent fill-accent" : "text-border"}`} />
+                  ))}
+                </div>
+                {review.comment && <p className="text-foreground text-sm leading-relaxed">"{review.comment}"</p>}
+                <p className="text-xs text-muted-foreground mt-4">
+                  {new Date(review.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/reviews">
+              <Button variant="outline">View All Reviews <ArrowRight className="w-4 h-4" /></Button>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Seasonal Notice */}
+      <section className="bg-muted py-12">
+        <div className="container mx-auto px-4 text-center">
+          <CalendarClock className="w-8 h-8 text-accent mx-auto mb-4" />
+          <h3 className="font-display text-xl font-bold text-foreground mb-2">Peak Season Notice</h3>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            June, July, August, and September are peak season months. Please book at least 1 week in advance to secure your preferred date.
+          </p>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="container mx-auto px-4 py-24 text-center">
         <div className="max-w-2xl mx-auto">
@@ -160,21 +185,22 @@ const Index = () => {
           <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
             Let us bring your vision to life. Choose a package, customize your services, and leave the rest to us.
           </p>
-          <Link to="/booking">
-            <Button variant="accent" size="xl" className="mt-8">
-              Start Planning Your Event <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          <div className="flex flex-wrap gap-4 justify-center mt-8">
+            <Link to="/booking">
+              <Button variant="accent" size="xl">
+                Start Planning Your Event <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+            <a href="tel:+38349000000">
+              <Button variant="outline" size="xl">
+                <Phone className="w-4 h-4" /> Call Us
+              </Button>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-10">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p className="font-display text-foreground font-semibold mb-2">MD Creative — Magic.Event</p>
-          <p>© 2026 MD Creative. All rights reserved. Premium event services in Kosovo.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
