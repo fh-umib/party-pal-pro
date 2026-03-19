@@ -239,7 +239,7 @@ const AdminPage = () => {
                       <td className="p-3 text-right">
                         <select
                           value={b.status}
-                          onChange={(e) => updateBookingStatus.mutate({ id: b.id, status: e.target.value })}
+                          onChange={(e) => updateBookingStatus.mutate({ id: b.id, status: e.target.value as "pending" | "accepted" | "rejected" | "completed" })}
                           className="text-xs border border-input rounded-md px-2 py-1 bg-background"
                         >
                           <option value="pending">Pending</option>
