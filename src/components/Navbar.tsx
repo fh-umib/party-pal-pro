@@ -12,6 +12,7 @@ const navItems = [
   { label: "Photo Booth", path: "/photo-services" },
   { label: "Packages", path: "/packages" },
   { label: "Gallery", path: "/gallery" },
+  { label: "Our Team", path: "/staff" },
   { label: "Reviews", path: "/reviews" },
 ];
 
