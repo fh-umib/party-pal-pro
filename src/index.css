@@ -48,9 +48,11 @@
     /* Custom tokens */
     --gradient-hero: linear-gradient(135deg, hsl(220 30% 18%), hsl(220 25% 30%));
     --gradient-accent: linear-gradient(135deg, hsl(38 70% 52%), hsl(32 80% 45%));
+    --gradient-warm: linear-gradient(135deg, hsl(38 70% 52% / 0.1), hsl(32 80% 45% / 0.05));
     --shadow-card: 0 2px 12px -2px hsl(220 20% 14% / 0.06);
     --shadow-card-hover: 0 8px 24px -4px hsl(220 20% 14% / 0.12);
     --shadow-accent: 0 4px 16px -2px hsl(38 70% 52% / 0.3);
+    --shadow-dramatic: 0 20px 60px -12px hsl(220 20% 14% / 0.2);
   }
 }
 
@@ -82,6 +84,10 @@
     background-image: var(--gradient-accent);
   }
 
+  .bg-gradient-warm {
+    background-image: var(--gradient-warm);
+  }
+
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
@@ -92,5 +98,9 @@
 
   .shadow-accent {
     box-shadow: var(--shadow-accent);
+  }
+
+  .shadow-dramatic {
+    box-shadow: var(--shadow-dramatic);
   }
 }
