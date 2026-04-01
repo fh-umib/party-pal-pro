@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,10 +7,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, ChevronLeft, ChevronRight, Calendar, MapPin, Phone, FileText, CheckCircle, User, Mail, Heart } from "lucide-react";
+import {
+  Check, ChevronLeft, ChevronRight, Calendar, MapPin, Phone,
+  FileText, CheckCircle, User, Mail, Heart, Package, Users,
+  Puzzle, ClipboardList, Sparkles, Star, Clock, ArrowRight
+} from "lucide-react";
 import Footer from "@/components/Footer";
 
-const steps = ["Package", "Mascots", "Add-ons", "Details"];
+const steps = [
+  { label: "Package", icon: Package, desc: "Choose your plan" },
+  { label: "Mascots", icon: Users, desc: "Pick characters" },
+  { label: "Add-ons", icon: Puzzle, desc: "Extra services" },
+  { label: "Details", icon: ClipboardList, desc: "Your info" },
+];
 const eventTypes = ["birthday", "wedding", "engagement", "anniversary", "grand_opening", "corporate", "other"] as const;
 
 const BookingPage = () => {
@@ -117,7 +126,6 @@ const BookingPage = () => {
 
       if (bookingError) throw bookingError;
 
-      // Insert mascots
       if (selectedMascots.length > 0) {
         const { error } = await supabase.from("booking_mascots").insert(
           selectedMascots.map((mascotId) => ({ booking_id: booking.id, mascot_id: mascotId }))
@@ -125,7 +133,6 @@ const BookingPage = () => {
         if (error) console.error("Mascot insert error:", error);
       }
 
-      // Insert extras
       const addonEntries = Object.entries(selectedAddOns);
       if (addonEntries.length > 0) {
         const { error } = await supabase.from("booking_extras").insert(
@@ -143,24 +150,33 @@ const BookingPage = () => {
     }
   };
 
+  /* ─── Success Screen ─── */
   if (submitted) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-20 text-center">
-          <div className="max-w-lg mx-auto animate-fade-in">
-            <div className="w-20 h-20 rounded-full bg-accent/10 mx-auto flex items-center justify-center mb-6">
-              <CheckCircle className="w-10 h-10 text-accent" />
+          <div className="max-w-lg mx-auto animate-scale-in">
+            <div className="relative w-24 h-24 mx-auto mb-8">
+              <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg">
+                <CheckCircle className="w-12 h-12 text-accent-foreground" />
+              </div>
             </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">Booking Submitted!</h1>
-            <p className="mt-4 text-muted-foreground leading-relaxed">
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground">You're All Set!</h1>
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
               Thank you for choosing our company. We appreciate your trust and look forward to making your event unforgettable.
             </p>
-            <p className="mt-4 font-semibold text-foreground font-display text-2xl">Total: ${totalPrice}</p>
-            <p className="mt-2 text-sm text-muted-foreground">Our team will contact you at {formData.phone} to confirm the details.</p>
+            <div className="mt-8 bg-card rounded-2xl border border-border p-6 shadow-card inline-block">
+              <p className="text-sm text-muted-foreground">Estimated Total</p>
+              <p className="font-display text-4xl font-bold text-foreground">${totalPrice}</p>
+            </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              We'll reach out to <span className="font-semibold text-foreground">{formData.phone}</span> to confirm details.
+            </p>
             <div className="flex gap-4 justify-center mt-8">
-              <a href="/">
-                <Button variant="default">Back to Home</Button>
-              </a>
+              <Link to="/">
+                <Button variant="outline" size="lg">Back to Home</Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -170,239 +186,415 @@ const BookingPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <section className="bg-primary py-12">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground">Book Your Event</h1>
-          <p className="mt-2 text-primary-foreground/60">Customize your perfect celebration step by step.</p>
-          {!user && (
-            <p className="mt-3 text-xs text-accent">
+    <div className="min-h-screen bg-background">
+      {/* ─── Hero Header ─── */}
+      <section className="relative overflow-hidden bg-primary py-16 md:py-20">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-accent blur-[100px]" />
+          <div className="absolute bottom-0 right-10 w-96 h-96 rounded-full bg-secondary blur-[120px]" />
+        </div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-1.5 mb-6">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-xs font-semibold text-accent tracking-wide uppercase">
+              {currentStep === 0 ? "Step 1 of 4" : `Step ${currentStep + 1} of 4`}
+            </span>
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight">
+            {currentStep === 0 && "Choose Your Package"}
+            {currentStep === 1 && "Select Your Characters"}
+            {currentStep === 2 && "Customize Your Experience"}
+            {currentStep === 3 && "Complete Your Booking"}
+          </h1>
+          <p className="mt-4 text-primary-foreground/60 text-lg max-w-xl mx-auto">
+            {currentStep === 0 && "Start by picking the perfect package for your celebration."}
+            {currentStep === 1 && `Pick up to ${pkg?.max_mascots || 1} amazing mascot characters.`}
+            {currentStep === 2 && "Add extra entertainment and services to your event."}
+            {currentStep === 3 && "Fill in your details and we'll handle the rest."}
+          </p>
+          {!user && currentStep === 3 && (
+            <p className="mt-4 text-xs text-accent">
               <Heart className="w-3 h-3 inline mr-1" />
-              Booking as guest — <a href="/login" className="underline">sign in</a> to track bookings & earn loyalty points.
+              Booking as guest — <Link to="/login" className="underline hover:text-accent/80">sign in</Link> to track bookings & earn loyalty points.
             </p>
           )}
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-10 max-w-4xl">
-        {/* Stepper */}
-        <div className="flex items-center justify-center gap-1 mb-10">
-          {steps.map((step, i) => (
-            <div key={step} className="flex items-center gap-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                i < currentStep ? "bg-accent text-accent-foreground" :
-                i === currentStep ? "bg-primary text-primary-foreground" :
-                "bg-muted text-muted-foreground"
-              }`}>
-                {i < currentStep ? <Check className="w-4 h-4" /> : i + 1}
+      <div className="container mx-auto px-4 py-10 max-w-5xl">
+        {/* ─── Step Progress ─── */}
+        <div className="flex items-center justify-between mb-12 max-w-2xl mx-auto">
+          {steps.map((step, i) => {
+            const Icon = step.icon;
+            const isCompleted = i < currentStep;
+            const isCurrent = i === currentStep;
+            return (
+              <div key={step.label} className="flex items-center gap-0 flex-1 last:flex-initial">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                    isCompleted
+                      ? "bg-accent text-accent-foreground shadow-lg shadow-accent/30 scale-95"
+                      : isCurrent
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
+                        : "bg-muted text-muted-foreground"
+                  }`}>
+                    {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                  </div>
+                  <span className={`text-xs font-semibold transition-colors ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}>
+                    {step.label}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground hidden sm:block">{step.desc}</span>
+                </div>
+                {i < steps.length - 1 && (
+                  <div className="flex-1 mx-2 mt-[-24px]">
+                    <div className={`h-1 rounded-full transition-all duration-500 ${isCompleted ? "bg-accent" : "bg-border"}`} />
+                  </div>
+                )}
               </div>
-              <span className={`text-xs font-medium hidden sm:inline ${i === currentStep ? "text-foreground" : "text-muted-foreground"}`}>{step}</span>
-              {i < steps.length - 1 && <div className={`w-8 h-0.5 ${i < currentStep ? "bg-accent" : "bg-border"}`} />}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Step Content */}
+        {/* ─── Step Content ─── */}
         <div className="animate-fade-in">
           {/* Step 0: Package */}
           {currentStep === 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {packages?.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => { setSelectedPackage(p.id); setSelectedMascots([]); }}
-                  className={`bg-card rounded-lg p-5 cursor-pointer shadow-card transition-all hover:shadow-card-hover border ${
-                    selectedPackage === p.id ? "border-accent ring-2 ring-accent" : "border-border"
-                  } ${p.is_popular ? "relative" : ""}`}
-                >
-                  {p.is_popular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>
-                  )}
-                  <h3 className="font-display text-xl font-bold text-foreground">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{p.description}</p>
-                  <p className="font-display text-2xl font-bold text-foreground mt-3">${p.base_price}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Up to {p.max_mascots} mascots</p>
-                  {p.features && (
-                    <ul className="mt-3 space-y-1">
-                      {(p.features as string[]).slice(0, 4).map((f) => (
-                        <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Check className="w-3 h-3 text-accent" /> {f}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+            <div>
+              {packages && packages.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {packages.map((p, idx) => {
+                    const isSelected = selectedPackage === p.id;
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => { setSelectedPackage(p.id); setSelectedMascots([]); }}
+                        className={`group relative bg-card rounded-2xl p-6 cursor-pointer transition-all duration-300 border-2 hover:-translate-y-1 ${
+                          isSelected
+                            ? "border-accent shadow-lg shadow-accent/20"
+                            : "border-border hover:border-accent/40 shadow-card hover:shadow-card-hover"
+                        }`}
+                      >
+                        {p.is_popular && (
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                            <span className="bg-gradient-to-r from-accent to-secondary text-accent-foreground text-xs font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                              <Star className="w-3 h-3" /> Most Popular
+                            </span>
+                          </div>
+                        )}
+                        {isSelected && (
+                          <div className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-accent flex items-center justify-center">
+                            <Check className="w-4 h-4 text-accent-foreground" />
+                          </div>
+                        )}
+                        <div className="mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${
+                            idx === 0 ? "bg-muted" : idx === 1 ? "bg-accent/10" : "bg-primary/10"
+                          }`}>
+                            <Package className={`w-6 h-6 ${idx === 0 ? "text-muted-foreground" : idx === 1 ? "text-accent" : "text-primary"}`} />
+                          </div>
+                          <h3 className="font-display text-xl font-bold text-foreground">{p.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{p.description}</p>
+                        </div>
+                        <div className="mb-4">
+                          <span className="font-display text-4xl font-bold text-foreground">${p.base_price}</span>
+                          <span className="text-sm text-muted-foreground ml-1">/ event</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                          <Users className="w-4 h-4 text-accent" />
+                          Up to {p.max_mascots} mascot{p.max_mascots !== 1 ? "s" : ""}
+                        </div>
+                        {p.features && (
+                          <ul className="space-y-2 border-t border-border pt-4">
+                            {(p.features as string[]).slice(0, 5).map((f) => (
+                              <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <Check className="w-4 h-4 text-accent mt-0.5 shrink-0" /> {f}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-16 bg-card rounded-2xl border border-border">
+                  <Package className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-foreground">No Packages Available</h3>
+                  <p className="text-sm text-muted-foreground mt-2">Check back soon — we're preparing amazing offers!</p>
+                </div>
+              )}
             </div>
           )}
 
           {/* Step 1: Mascots */}
           {currentStep === 1 && pkg && (
             <div>
-              <p className="text-center text-muted-foreground mb-6">
-                Select up to <span className="font-semibold text-foreground">{pkg.max_mascots}</span> mascots
-                ({selectedMascots.length}/{pkg.max_mascots} selected)
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mascots?.map((m) => {
-                  const isSelected = selectedMascots.includes(m.id);
-                  return (
-                    <div
-                      key={m.id}
-                      onClick={() => toggleMascot(m.id)}
-                      className={`bg-card rounded-lg overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 border cursor-pointer ${
-                        isSelected ? "border-accent ring-2 ring-accent" : "border-border"
-                      }`}
-                    >
-                      <div className="relative bg-muted aspect-square">
-                        {m.image_url ? (
-                          <img src={m.image_url} alt={m.name} className="w-full h-full object-contain p-4" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-muted-foreground font-display text-4xl font-bold">
-                            {m.name.charAt(0)}
-                          </div>
-                        )}
-                        {m.category && (
-                          <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-md">{m.category}</span>
-                        )}
-                        {isSelected && (
-                          <div className="absolute top-3 right-3 w-7 h-7 bg-accent rounded-md flex items-center justify-center">
-                            <Check className="w-4 h-4 text-accent-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-display text-lg font-bold text-foreground">{m.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{m.description}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 bg-card border border-border rounded-full px-6 py-3 shadow-card">
+                  <Users className="w-5 h-5 text-accent" />
+                  <span className="text-sm font-medium text-foreground">
+                    {selectedMascots.length} / {pkg.max_mascots} selected
+                  </span>
+                  <div className="flex gap-1">
+                    {Array.from({ length: pkg.max_mascots }).map((_, i) => (
+                      <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i < selectedMascots.length ? "bg-accent scale-110" : "bg-border"}`} />
+                    ))}
+                  </div>
+                </div>
               </div>
+              {mascots && mascots.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mascots.map((m) => {
+                    const isSelected = selectedMascots.includes(m.id);
+                    const isFull = selectedMascots.length >= pkg.max_mascots && !isSelected;
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => !isFull && toggleMascot(m.id)}
+                        className={`group relative bg-card rounded-2xl overflow-hidden transition-all duration-300 border-2 ${
+                          isFull ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:-translate-y-1"
+                        } ${isSelected
+                          ? "border-accent shadow-lg shadow-accent/20"
+                          : "border-border hover:border-accent/40 shadow-card hover:shadow-card-hover"
+                        }`}
+                      >
+                        <div className="relative bg-muted aspect-[4/3] overflow-hidden">
+                          {m.image_url ? (
+                            <img src={m.image_url} alt={m.name} className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <span className="font-display text-6xl font-bold text-muted-foreground/20">{m.name.charAt(0)}</span>
+                            </div>
+                          )}
+                          {m.category && (
+                            <span className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground text-xs font-semibold px-3 py-1 rounded-lg">{m.category}</span>
+                          )}
+                          {isSelected && (
+                            <div className="absolute top-3 right-3 w-8 h-8 bg-accent rounded-xl flex items-center justify-center shadow-lg">
+                              <Check className="w-4 h-4 text-accent-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-5">
+                          <h3 className="font-display text-lg font-bold text-foreground">{m.name}</h3>
+                          {m.character && <p className="text-xs font-medium text-accent mt-0.5">{m.character}</p>}
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{m.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-card rounded-2xl border border-border">
+                  <Users className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-foreground">No Mascots Available</h3>
+                  <p className="text-sm text-muted-foreground mt-2">Our characters are being prepped — check back soon!</p>
+                </div>
+              )}
             </div>
           )}
 
           {/* Step 2: Add-ons */}
           {currentStep === 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {extras?.map((addon) => {
-                const isIncluded = pkg?.includes_addons?.includes(addon.id);
-                const isSelected = !!selectedAddOns[addon.id];
-                return (
-                  <div
-                    key={addon.id}
-                    onClick={() => !isIncluded && toggleAddOn(addon.id)}
-                    className={`bg-card rounded-lg p-5 transition-all shadow-card hover:shadow-card-hover border ${
-                      isIncluded ? "opacity-60 border-border" : "cursor-pointer"
-                    } ${isSelected ? "border-accent ring-2 ring-accent" : "border-border"}`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-display text-lg font-bold text-foreground">{addon.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{addon.description}</p>
-                      </div>
-                      {isIncluded ? (
-                        <span className="bg-accent/10 text-accent text-xs font-semibold px-2 py-1 rounded-md">Included</span>
-                      ) : isSelected ? (
-                        <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
-                          <Check className="w-4 h-4 text-accent-foreground" />
+            <div>
+              {extras && extras.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {extras.map((addon) => {
+                    const isIncluded = pkg?.includes_addons?.includes(addon.id);
+                    const isSelected = !!selectedAddOns[addon.id];
+                    return (
+                      <div
+                        key={addon.id}
+                        onClick={() => !isIncluded && toggleAddOn(addon.id)}
+                        className={`group relative bg-card rounded-2xl p-6 transition-all duration-300 border-2 ${
+                          isIncluded ? "opacity-60 border-border cursor-default" : "cursor-pointer hover:-translate-y-0.5"
+                        } ${isSelected
+                          ? "border-accent shadow-lg shadow-accent/20"
+                          : "border-border hover:border-accent/40 shadow-card hover:shadow-card-hover"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-display text-lg font-bold text-foreground">{addon.name}</h3>
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{addon.description}</p>
+                            {addon.category && (
+                              <span className="inline-block mt-2 text-[10px] font-semibold uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded-md">
+                                {addon.category}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0">
+                            {isIncluded ? (
+                              <span className="bg-accent/10 text-accent text-xs font-bold px-3 py-1.5 rounded-lg">Included</span>
+                            ) : isSelected ? (
+                              <div className="w-8 h-8 rounded-xl bg-accent flex items-center justify-center">
+                                <Check className="w-4 h-4 text-accent-foreground" />
+                              </div>
+                            ) : (
+                              <span className="font-display text-2xl font-bold text-foreground">+${addon.price}</span>
+                            )}
+                          </div>
                         </div>
-                      ) : null}
-                    </div>
-                    {!isIncluded && <p className="font-display text-xl font-bold text-foreground mt-3">+${addon.price}</p>}
-                  </div>
-                );
-              })}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-card rounded-2xl border border-border">
+                  <Puzzle className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-foreground">No Add-ons Yet</h3>
+                  <p className="text-sm text-muted-foreground mt-2">You can skip this step and proceed.</p>
+                </div>
+              )}
             </div>
           )}
 
           {/* Step 3: Details */}
           {currentStep === 3 && (
-            <div className="max-w-md mx-auto space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <Label className="flex items-center gap-2 mb-1.5"><User className="w-4 h-4 text-accent" /> Full Name *</Label>
-                  <Input placeholder="Your full name" value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} required />
+            <div className="max-w-xl mx-auto">
+              <div className="bg-card rounded-2xl border border-border p-8 shadow-card">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="sm:col-span-2">
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <User className="w-4 h-4 text-accent" /> Full Name
+                    </Label>
+                    <Input
+                      placeholder="Your full name"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <Mail className="w-4 h-4 text-accent" /> Email
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <Phone className="w-4 h-4 text-accent" /> Phone
+                    </Label>
+                    <Input
+                      type="tel"
+                      placeholder="+383..."
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">Event Type</Label>
+                    <select
+                      value={formData.eventType}
+                      onChange={(e) => setFormData({ ...formData, eventType: e.target.value as typeof eventTypes[number] })}
+                      className="w-full h-12 px-4 rounded-xl border border-input bg-background text-foreground text-sm focus:ring-2 focus:ring-ring outline-none"
+                    >
+                      {eventTypes.map((t) => (
+                        <option key={t} value={t}>{t.replace("_", " ").replace(/^\w/, (c) => c.toUpperCase())}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <Calendar className="w-4 h-4 text-accent" /> Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <Clock className="w-4 h-4 text-accent" /> Time
+                    </Label>
+                    <Input
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      className="h-12 rounded-xl"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <MapPin className="w-4 h-4 text-accent" /> Location
+                    </Label>
+                    <Input
+                      placeholder="Event venue address"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label className="flex items-center gap-2 mb-2 text-sm font-semibold">
+                      <FileText className="w-4 h-4 text-accent" /> Special Requests
+                    </Label>
+                    <textarea
+                      placeholder="Anything else we should know?"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground text-sm focus:ring-2 focus:ring-ring outline-none resize-none"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label className="flex items-center gap-2 mb-1.5"><Mail className="w-4 h-4 text-accent" /> Email *</Label>
-                  <Input type="email" placeholder="you@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-                </div>
-                <div>
-                  <Label className="flex items-center gap-2 mb-1.5"><Phone className="w-4 h-4 text-accent" /> Phone *</Label>
-                  <Input type="tel" placeholder="+383..." value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required />
-                </div>
-              </div>
-
-              <div>
-                <Label className="flex items-center gap-2 mb-1.5">Event Type</Label>
-                <select
-                  value={formData.eventType}
-                  onChange={(e) => setFormData({ ...formData, eventType: e.target.value as typeof eventTypes[number] })}
-                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground text-sm focus:ring-2 focus:ring-ring outline-none"
-                >
-                  {eventTypes.map((t) => (
-                    <option key={t} value={t}>{t.replace("_", " ").replace(/^\w/, (c) => c.toUpperCase())}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="flex items-center gap-2 mb-1.5"><Calendar className="w-4 h-4 text-accent" /> Date *</Label>
-                  <Input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
-                </div>
-                <div>
-                  <Label className="flex items-center gap-2 mb-1.5"><Calendar className="w-4 h-4 text-accent" /> Time</Label>
-                  <Input type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} />
-                </div>
-              </div>
-
-              <div>
-                <Label className="flex items-center gap-2 mb-1.5"><MapPin className="w-4 h-4 text-accent" /> Location *</Label>
-                <Input placeholder="Event venue address" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} required />
-              </div>
-
-              <div>
-                <Label className="flex items-center gap-2 mb-1.5"><FileText className="w-4 h-4 text-accent" /> Notes</Label>
-                <textarea
-                  placeholder="Any special requests?"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:ring-2 focus:ring-ring outline-none resize-none"
-                />
               </div>
             </div>
           )}
         </div>
 
-        {/* Price summary bar */}
-        <div className="mt-8 bg-card rounded-lg p-5 shadow-card border border-border flex flex-wrap items-center justify-between gap-4">
-          <div>
-            {pkg && (
-              <div className="text-sm text-muted-foreground">
-                {pkg.name} · {selectedMascots.length} mascot{selectedMascots.length !== 1 ? "s" : ""} · {Object.keys(selectedAddOns).length} add-on{Object.keys(selectedAddOns).length !== 1 ? "s" : ""}
+        {/* ─── Bottom Bar ─── */}
+        <div className="mt-10 bg-card rounded-2xl p-6 shadow-card border border-border">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              {pkg && (
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Summary</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                    <span className="bg-muted px-2 py-0.5 rounded-md font-medium text-foreground">{pkg.name}</span>
+                    <span>·</span>
+                    <span>{selectedMascots.length} mascot{selectedMascots.length !== 1 ? "s" : ""}</span>
+                    <span>·</span>
+                    <span>{Object.keys(selectedAddOns).length} add-on{Object.keys(selectedAddOns).length !== 1 ? "s" : ""}</span>
+                  </div>
+                </div>
+              )}
+              <div className="border-l border-border pl-6 hidden sm:block">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Total</p>
+                <p className="font-display text-3xl font-bold text-foreground">${totalPrice}</p>
               </div>
-            )}
-            <div className="font-display text-2xl font-bold text-foreground">Total: ${totalPrice}</div>
-          </div>
-          <div className="flex gap-2">
-            {currentStep > 0 && (
-              <Button variant="outline" onClick={() => setCurrentStep((s) => s - 1)}>
-                <ChevronLeft className="w-4 h-4" /> Back
-              </Button>
-            )}
-            {currentStep < steps.length - 1 ? (
-              <Button variant="default" onClick={() => setCurrentStep((s) => s + 1)} disabled={!canProceed()}>
-                Next <ChevronRight className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button variant="accent" size="lg" onClick={handleSubmit} disabled={!canProceed() || submitting}>
-                {submitting ? "Submitting…" : "Submit Booking"}
-              </Button>
-            )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              {currentStep > 0 && (
+                <Button variant="outline" size="lg" onClick={() => setCurrentStep((s) => s - 1)} className="rounded-xl">
+                  <ChevronLeft className="w-4 h-4" /> Back
+                </Button>
+              )}
+              {currentStep < steps.length - 1 ? (
+                <Button variant="default" size="lg" onClick={() => setCurrentStep((s) => s + 1)} disabled={!canProceed()} className="rounded-xl">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button variant="accent" size="lg" onClick={handleSubmit} disabled={!canProceed() || submitting} className="rounded-xl px-8">
+                  {submitting ? "Submitting…" : "Confirm Booking"} {!submitting && <ArrowRight className="w-4 h-4" />}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
