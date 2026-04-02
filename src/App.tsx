@@ -20,6 +20,7 @@ import GalleryPage from "./pages/GalleryPage";
 import ReviewsPage from "./pages/ReviewsPage";
 import StaffPage from "./pages/StaffPage";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <SeasonalBanner />
           <Navbar />
           <Routes>
