@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { LogIn, Eye, EyeOff } from "lucide-react";
+import { LogIn, Eye, EyeOff, ArrowRight } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -29,39 +30,54 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-primary mx-auto flex items-center justify-center mb-4">
-            <LogIn className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to manage your bookings</p>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center bg-background px-4 py-16 relative overflow-hidden">
+        {/* Subtle dot pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 
-        <form onSubmit={handleLogin} className="bg-card rounded-lg p-8 shadow-card border border-border space-y-5">
-          <div>
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1.5" />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <div className="relative mt-1.5">
-              <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+        <div className="relative w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 rounded-full bg-gradient-accent mx-auto flex items-center justify-center mb-4 shadow-accent">
+              <LogIn className="w-6 h-6 text-accent-foreground" />
             </div>
+            <h1 className="font-display text-3xl font-bold text-foreground">Welcome Back</h1>
+            <p className="text-muted-foreground mt-2">Sign in to manage your bookings and loyalty rewards</p>
           </div>
-          <Button type="submit" variant="accent" size="lg" className="w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign In"}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-accent font-semibold hover:underline">Create one</Link>
-          </p>
-        </form>
+
+          <form onSubmit={handleLogin} className="bg-card rounded-lg p-8 shadow-card-hover border border-border space-y-5">
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1.5" />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <div className="relative mt-1.5">
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            <Button type="submit" variant="accent" size="lg" className="w-full" disabled={loading}>
+              {loading ? "Signing in…" : "Sign In"} {!loading && <ArrowRight className="w-4 h-4" />}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-accent font-semibold hover:underline">Create one</Link>
+            </p>
+          </form>
+
+          {/* Guest booking hint */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              You can also{" "}
+              <Link to="/booking" className="text-accent font-semibold hover:underline">book as a guest</Link>{" "}
+              without creating an account.
+            </p>
+          </div>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };
