@@ -21,6 +21,7 @@ import ReviewsPage from "./pages/ReviewsPage";
 import StaffPage from "./pages/StaffPage";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "@/components/ScrollToTop";
+import FloatingContact from "@/components/FloatingContact";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingContact />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

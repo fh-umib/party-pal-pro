@@ -169,7 +169,7 @@ const ActivitiesPage = () => {
       )}
 
       {/* CTA */}
-      <section className={`${regularActivities && regularActivities.length > 0 ? "" : ""}py-24`}>
+      <section className="py-24">
         <div className="container mx-auto px-4 text-center">
           <Sparkles className="w-10 h-10 text-accent mx-auto mb-6 animate-float" />
           <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
