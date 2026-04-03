@@ -21,6 +21,7 @@ import ReviewsPage from "./pages/ReviewsPage";
 import StaffPage from "./pages/StaffPage";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "@/components/ScrollToTop";
+import FloatingContact from "@/components/FloatingContact";
 
 const queryClient = new QueryClient();
 
