@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingContact />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
